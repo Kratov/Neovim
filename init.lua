@@ -20,6 +20,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
   -- require 'kickstart.plugins.autoformat'vim-test/vim-test,
+  "nvim-neotest/nvim-nio",
   { import = 'custom.plugins' },
 }, {})
 
@@ -189,6 +190,9 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
+
+require('nvim-treesitter.install').compilers = { 'zig' }
+
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
