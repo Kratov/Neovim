@@ -1,3 +1,0 @@
-return {
-  'David-Kunz/jester',
-}
