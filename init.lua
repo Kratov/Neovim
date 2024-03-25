@@ -323,14 +323,6 @@ require("transparent").setup({ -- Optional, you don't have to run setup.
   exclude_groups = {}, -- table: groups you don't want to clear
 })
 
--- Jester setup
-
-require("jester").setup({
-  path_to_jest_run = "node_modules/.bin/jest",
-  cmd = "npx jest '$result' -- $file"
-})
-
-
 -- document existing key chains
 require('which-key').register {
   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
@@ -410,24 +402,6 @@ mason_lspconfig.setup_handlers {
 }
 
 vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
-
-vim.api.nvim_set_keymap("n", "<leader>tt", ":lua require'jester'.run()<CR>",
-  { desc = "Run nearest test" })
-
-vim.api.nvim_set_keymap("n", "<leader>tf", ":lua require'jester'.run_file()<CR>",
-  { desc = "Run current file tests" })
-
-vim.api.nvim_set_keymap("n", "<leader>tl", ":lua require'jester'.run_last()<CR>",
-  { desc = "Run lastest test" })
-
-vim.api.nvim_set_keymap("n", "<leader>tT", ":lua require'jester'.debug()<CR>",
-  { desc = "Run debug nearest test" })
-
-vim.api.nvim_set_keymap("n", "<leader>tF", ":lua require'jester'.debug_file()<CR>",
-  { desc = "Run debug file tests" })
-
-vim.api.nvim_set_keymap("n", "<leader>tL", ":lua require'jester'.debug_last()<CR>",
-  { desc = "Run debug lastest test" })
 
 local lint_augroup = vim.api.nvim_create_augroup('Lint', { clear = true })
 vim.api.nvim_create_autocmd({
@@ -550,6 +524,11 @@ cmp.setup {
     { name = 'path' },
     { name = "copilot" },
   },
+
+  require('nvim-jest').setup {
+    jest_cmd = 'npx jest',
+    silent = false,
+  }
 }
 
 -- The line beneath this is called `modeline`. See `:help modeline`
