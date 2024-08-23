@@ -1,6 +1,7 @@
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
+vim.g.copilot_proxy_strict_ssl = false
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -401,8 +402,6 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
-vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
-
 local lint_augroup = vim.api.nvim_create_augroup('Lint', { clear = true })
 vim.api.nvim_create_autocmd({
   "InsertLeave",
@@ -465,7 +464,6 @@ cmp.setup {
   sorting = {
     priority_weight = 2,
     comparators = {
-      require("copilot_cmp.comparators").prioritize,
 
       -- Below is the default comparitor list and order for nvim-cmp
       cmp.config.compare.offset,
@@ -488,7 +486,6 @@ cmp.setup {
       -- maxwidth = function() return math.floor(0.45 * vim.o.columns) end,
       ellipsis_char = '...',    -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
       show_labelDetails = true, -- show labelDetails in menu. Disabled by default
-      symbol_map = { Copilot = "" }
     }),
   },
   mapping = cmp.mapping.preset.insert {
@@ -522,7 +519,6 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
     { name = 'path' },
-    { name = "copilot" },
   },
 
   require('nvim-jest').setup {
