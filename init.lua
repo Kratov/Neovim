@@ -1,4 +1,5 @@
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
+--  NOTE: JAIME remember to instal ripgrep and fd with Chocolatey
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.copilot_proxy_strict_ssl = false
@@ -283,18 +284,106 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+
   nmap('<leader>ca', function()
     vim.lsp.buf.code_action { context = { only = { 'quickfix', 'refactor', 'source' } } }
   end, '[C]ode [A]ction')
 
-  nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
-  -- See `:help K` for why this keymap
+local telescope_builtin = require('telescope.builtin')
+
+-- Function to open the log buffer in a horizontal split at the bottom
+local function open_log_buffer()
+  -- Check if the buffer exists
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_get_name(buf) == "Dotnet Logs" then
+      -- Reuse the existing buffer
+      return buf
+    end
+  end
+
+  -- Create a new buffer
+  local buf = vim.api.nvim_create_buf(false, true) -- Create a new unlisted buffer
+  vim.api.nvim_buf_set_name(buf, "Dotnet Logs") -- Set buffer name
+  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe') -- Auto-remove when hidden
+  -- Open the buffer in a horizontal split at the bottom of the screen
+  vim.cmd('botright split')  -- Open the split at the bottom
+  vim.api.nvim_win_set_buf(0, buf) -- Set the buffer in the current window
+  vim.api.nvim_win_set_height(0, 10) -- Set the height of the split
+  return buf
+end
+
+-- Function to run dotnet project and log the output
+vim.keymap.set('n', '<leader>cr', function()
+  telescope_builtin.find_files({
+    prompt_title = 'Select .NET Project',
+    search_dirs = { '.' },
+    find_command = { 'fd', '--type', 'f', '--glob', '*.csproj', '--no-ignore-vcs', '--no-follow' },
+    attach_mappings = function(prompt_bufnr, map)
+      map('i', '<CR>', function()
+        local selected_project = require('telescope.actions.state').get_selected_entry()
+        require('telescope.actions').close(prompt_bufnr)
+
+        -- Open the log buffer in a split window at the bottom to monitor the app's output
+        local log_buf = open_log_buffer()
+
+        -- Clear previous content in the log buffer
+        vim.api.nvim_buf_set_lines(log_buf, 0, -1, false, {})
+
+        -- Asynchronous job for `dotnet run`
+        local job_id = vim.fn.jobstart("dotnet run --project " .. selected_project.path, {
+          stdout_buffered = false,  -- Real-time output
+          stderr_buffered = false,
+          on_stdout = function(_, data, _)
+            if data then
+              -- Append the stdout logs to the buffer
+              vim.api.nvim_buf_set_lines(log_buf, -1, -1, false, data)
+              vim.api.nvim_command("normal! G")  -- Auto-scroll to the bottom
+            end
+          end,
+          on_stderr = function(_, data, _)
+            if data then
+              -- Append the stderr logs to the buffer (in case of errors)
+              vim.api.nvim_buf_set_lines(log_buf, -1, -1, false, data)
+              vim.api.nvim_command("normal! G")  -- Auto-scroll to the bottom
+            end
+          end,
+          on_exit = function(_, exit_code, _)
+            -- Notify the user when the app finishes or crashes
+            if exit_code == 0 then
+              vim.api.nvim_buf_set_lines(log_buf, -1, -1, false, { "Project ran successfully" })
+            else
+              vim.api.nvim_buf_set_lines(log_buf, -1, -1, false, { "Project failed to run" })
+            end
+            vim.api.nvim_command("normal! G")  -- Auto-scroll to the bottom
+          end
+        })
+
+        -- Automatically kill the job when the buffer is closed
+        vim.api.nvim_create_autocmd("BufWipeout", {
+          buffer = log_buf,
+          callback = function()
+            -- Kill the dotnet process if it's still running
+            if job_id > 0 then
+              vim.fn.jobstop(job_id)
+              print("dotnet process killed")
+            end
+          end
+        })
+      end)
+      return true
+    end
+  })
+end, { desc = '[C]ode [R]un selected .NET project with Telescope' })
+
+  local builtin = require('telescope.builtin')
+
+  nmap('gr', builtin.lsp_references, '[G]oto [R]eferences')
+  nmap('gI', builtin.lsp_implementations, '[G]oto [I]mplementation')
+  nmap('gd', builtin.lsp_definitions, '[G]oto [D]efinition')  -- Added gd mapping for go-to-definition
+  nmap('<leader>D', builtin.lsp_type_definitions, 'Type [D]efinition')
+  nmap('<leader>ds', builtin.lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>ws', builtin.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')  -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
@@ -325,50 +414,32 @@ require("transparent").setup({ -- Optional, you don't have to run setup.
 })
 
 -- document existing key chains
-require('which-key').register {
-  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-  ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-  ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-  ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
-  ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-  ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-  ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
-  ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-}
--- register which-key VISUAL mode
--- required for visual <leader>hs (hunk stage) to work
-require('which-key').register({
-  ['<leader>'] = { name = 'VISUAL <leader>' },
-  ['<leader>h'] = { 'Git [H]unk' },
-}, { mode = 'v' })
+local wk = require('which-key')
 
--- mason-lspconfig requires that these setup functions are called in this order
--- before setting up the servers.
+wk.add({
+  { "<leader>c", group = "[C]ode" }, -- Code group
+  { "<leader>d", group = "[D]ocument" }, -- Document group
+  { "<leader>g", group = "[G]it" }, -- Git group
+  { "<leader>h", group = "Git [H]unk" }, -- Git Hunk group
+  { "<leader>r", group = "[R]ename" }, -- Rename group
+  { "<leader>s", group = "[S]earch" }, -- Search group
+  { "<leader>t", group = "[T]oggle" }, -- Toggle group
+  { "<leader>w", group = "[W]orkspace" }, -- Workspace group
+})
+
+-- Required for visual <leader>hs (hunk stage) to work
+wk.add({
+  { "<leader>h", group = "Git [H]unk" }, -- Visual mode Git Hunk group
+}, { mode = "v" }) -- Visual mode registration
+
 require('mason').setup()
 require('mason-lspconfig').setup()
 
--- Enable the following language servers
---  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
---
---  Add any additional override configuration in the following tables. They will be passed to
---  the `settings` field of the server config. You must look up that documentation yourself.
---
---  If you want to override the default filetypes that your language server will attach to you can
---  define the property 'filetypes' to the map in question.
 local servers = {
-  -- clangd = {},
-  -- gopls = {},
-  -- pyright = {},
-  -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
-
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
-      -- NOTE: toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-      -- diagnostics = { disable = { 'missing-fields' } },
     },
   },
 }
@@ -423,16 +494,6 @@ vim.keymap.set(
     desc = 'Trigger linting current file'
   })
 
-vim.keymap.set({
-  "n", "v"
-}, "<leader>f", function()
-  local conform = require("conform")
-  conform.format({
-    lsp_fallback = true,
-    async = false,
-    timeout_ms = 500
-  })
-end, { desc = "Format with Conform" })
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
@@ -465,9 +526,7 @@ cmp.setup {
     priority_weight = 2,
     comparators = {
 
-      -- Below is the default comparitor list and order for nvim-cmp
       cmp.config.compare.offset,
-      -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
       cmp.config.compare.exact,
       cmp.config.compare.score,
       cmp.config.compare.recently_used,
@@ -481,13 +540,12 @@ cmp.setup {
   formatting = {
     format = lspkind.cmp_format({
       mode = 'symbol_text',
-      maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
-      -- can also be a function to dynamically calculate max width such as
-      -- maxwidth = function() return math.floor(0.45 * vim.o.columns) end,
-      ellipsis_char = '...',    -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
-      show_labelDetails = true, -- show labelDetails in menu. Disabled by default
+      maxwidth = 50, 
+      ellipsis_char = '...',   
+      show_labelDetails = true, 
     }),
   },
+
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
@@ -527,6 +585,3 @@ cmp.setup {
   }
 }
 
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
--- vim: ts=2 sts=2 sw=2 et
