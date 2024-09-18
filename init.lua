@@ -3,6 +3,10 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.copilot_proxy_strict_ssl = false
+vim.g.copilot_node_command = 'C:\\Program Files\\nodejs\\node.exe'
+vim.g.copilot_workspace_folders = { "C:\\Users\\jzamora1\\Documents\\Spring" }
+
+vim.fn.setenv("NODE_TLS_REJECT_UNAUTHORIZED", "0")
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
