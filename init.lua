@@ -405,6 +405,7 @@ end, { desc = '[C]ode [R]un selected .NET project with Telescope' })
   end, { desc = 'Format current buffer with LSP' })
 end
 
+
 require("transparent").setup({ -- Optional, you don't have to run setup.
   groups = {                   -- table: default groups
     'Normal', 'NormalNC', 'Comment', 'Constant', 'Special', 'Identifier',
@@ -475,6 +476,7 @@ mason_lspconfig.setup_handlers {
     end
     local capabilities = require("cmp_nvim_lsp").default_capabilities()
     require("lspconfig")[server_name].setup({
+      on_attach = on_attach,
       capabilities = capabilities,
     })
   end
