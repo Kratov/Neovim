@@ -464,17 +464,20 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
+  
 }
 
 mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
+  function(server_name) -- default handler (optional)
+    -- https://github.com/neovim/nvim-lspconfig/pull/3232
+    if server_name == "tsserver" then
+      server_name = "ts_ls"
+    end
+    local capabilities = require("cmp_nvim_lsp").default_capabilities()
+    require("lspconfig")[server_name].setup({
       capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-    }
-  end,
+    })
+  end
 }
 
 local lint_augroup = vim.api.nvim_create_augroup('Lint', { clear = true })
