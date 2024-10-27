@@ -1,4 +1,80 @@
 
+-- Override function for JSON error handling in nvim-dap's session
+-- Uncomment this function definition if you need to persist this in an external file, such as in `after/plugin/dap_override.lua`
+
+-- function Session:handle_body(body)
+--   -- Attempt to decode JSON, and handle decoding errors
+--   local success, decoded = pcall(json_decode, body)
+--   if not success then
+--     log.error("JSON decode error: ", decoded)  -- Log the error if decoding fails
+--     return  -- Exit early if decoding fails to avoid further processing
+--   end
+
+--   log.debug(self.id, decoded)
+--   local listeners = dap().listeners
+--   if decoded.request_seq then
+--     local callback = self.message_callbacks[decoded.request_seq]
+--     local request = self.message_requests[decoded.request_seq]
+--     self.message_requests[decoded.request_seq] = nil
+--     self.message_callbacks[decoded.request_seq] = nil
+--     if not callback then
+--       log.error('No callback found. Did the debug adapter send duplicate responses?', decoded)
+--       return
+--     end
+--     if decoded.success then
+--       vim.schedule(function()
+--         for _, c in pairs(listeners.before[decoded.command]) do
+--           c(self, nil, decoded.body, request, decoded.request_seq)
+--         end
+--         callback(nil, decoded.body, decoded.request_seq)
+--         for _, c in pairs(listeners.after[decoded.command]) do
+--           c(self, nil, decoded.body, request, decoded.request_seq)
+--         end
+--       end)
+--     else
+--       vim.schedule(function()
+--         local err = { message = decoded.message; body = decoded.body; }
+--         for _, c in pairs(listeners.before[decoded.command]) do
+--           c(self, err, nil, request, decoded.request_seq)
+--         end
+--         callback(err, nil, decoded.request_seq)
+--         for _, c in pairs(listeners.after[decoded.command]) do
+--           c(self, err, nil, request, decoded.request_seq)
+--         end
+--       end)
+--     end
+--   elseif decoded.event then
+--     local callback = self['event_' .. decoded.event]
+--     vim.schedule(function()
+--       local event_handled = false
+--       for _, c in pairs(listeners.before['event_' .. decoded.event]) do
+--         event_handled = true
+--         c(self, decoded.body)
+--       end
+--       if callback then
+--         event_handled = true
+--         callback(self, decoded.body)
+--       end
+--       for _, c in pairs(listeners.after['event_' .. decoded.event]) do
+--         event_handled = true
+--         c(self, decoded.body)
+--       end
+--       if not event_handled then
+--         log.warn('No event handler for ', decoded)
+--       end
+--     end)
+--   elseif decoded.type == 'request' then
+--     local handler = self.handlers.reverse_requests[decoded.command]
+--     if handler then
+--       handler(self, decoded)
+--     else
+--       log.warn('No handler for reverse request', decoded)
+--     end
+--   else
+--     log.warn('Received unexpected message', decoded)
+--   end
+-- end
+
 -- debug.lua
 return {
     'mfussenegger/nvim-dap',
@@ -13,6 +89,8 @@ return {
     config = function()
         local dap = require 'dap'
         local dapui = require 'dapui'
+
+
 
         -- Mason setup for nvim-dap
         require('mason-nvim-dap').setup {
@@ -29,7 +107,6 @@ return {
                 'typescript',
             },
         }
-
 
         -- Redirect DAP errors to a log buffer
         local function log_dap_errors(err)
@@ -52,33 +129,22 @@ return {
         end
 
         -- Configuration for C# debugging with netcoredbg
+        
         dap.configurations.cs = {
-            {
-                type = 'coreclr',
-                name = 'Launch - .NET Core',
-                request = 'launch',
-                preLaunchTask = function()
-                    local cmd = 'dotnet build'
-                    local result = vim.fn.system(cmd)
-                    if vim.v.shell_error ~= 0 then
-                        vim.notify('Build failed: ' .. result, vim.log.levels.ERROR)
-                        return false
-                    end
-                    return true
-                end,
-                program = function()
-                    local dll_files = vim.fn.glob(vim.fn.getcwd() .. '/bin/Debug/**/*.dll', false, true)
-                    if #dll_files == 0 then
-                        vim.notify('No .dll file found in build directory.', vim.log.levels.ERROR)
-                        return nil
-                    end
-                    table.sort(dll_files, function(a, b)
-                        return vim.fn.getftime(a) > vim.fn.getftime(b)
-                    end)
-                    return dll_files[1]
-                end,
-            },
+        {
+            type = 'coreclr',
+            name = 'Launch - .NET Core',
+            request = 'launch',
+            program = function()
+                local dll_files = vim.fn.glob(vim.fn.getcwd() .. '/bin/Debug/**/*.dll', false, true)
+                table.sort(dll_files, function(a, b) return vim.fn.getftime(a) > vim.fn.getftime(b) end)
+                return dll_files[1]
+            end,
+            console = 'integratedTerminal',  -- Use integrated terminal for output
+            internalConsoleOptions = 'openOnSessionStart',  -- Open console at session start
+        },
         }
+
 
         -- Keymaps setup with error handling
         local function setup_keymaps()
