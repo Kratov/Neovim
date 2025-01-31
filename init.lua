@@ -3,8 +3,8 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.copilot_proxy_strict_ssl = false
-vim.g.copilot_node_command = 'C:\\Program Files\\nodejs\\node.exe'
-vim.g.copilot_workspace_folders = { "C:\\Users\\jzamora1\\Documents\\Spring" }
+--vim.g.copilot_node_command = 'C:\\Program Files\\nodejs\\node.exe'
+--vim.g.copilot_workspace_folders = { "C:\\Users\\jzamora1\\Documents\\Spring" }
 vim.env.VIMRUNTIME = '/opt/homebrew/Cellar/neovim/0.10.4/share/nvim/runtime'
 
 vim.fn.setenv("NODE_TLS_REJECT_UNAUTHORIZED", "0")
