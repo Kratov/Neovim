@@ -56,18 +56,22 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
 }
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    if server_name == "tsserver" then
-      server_name = "ts_ls" -- remap
-    end
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-    }
-  end,
-}
+
+local lspconfig = require('lspconfig')
+
+for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
+  local config = {
+    capabilities = capabilities,
+    on_attach = on_attach,
+  }
+
+  if servers[server_name] then
+    config.settings = servers[server_name]
+  end
+
+  lspconfig[server_name].setup(config)
+end
+
 
 -- Optional manual linting command
 vim.keymap.set("n", "<leader>l", function()
