@@ -1,7 +1,7 @@
 -- lua/core/treesitter.lua
 
 -- ─[ Treesitter Configuration ]────────────────────────
-require('nvim-treesitter.install').compilers = { 'zig' }
+require('nvim-treesitter.install').compilers = { 'gcc' }
 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
