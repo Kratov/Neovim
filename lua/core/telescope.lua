@@ -40,16 +40,16 @@ telescope.setup {
       },
     },
   },
-  defaults = {
-    layout_strategy = 'vertical',
-    layout_config = { vertical = { width = 0.5 } },
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
+
+defaults = {
+  layout_strategy = 'horizontal',
+  layout_config = {
+    preview_width = 0.6,
+    width = 0.9,
+    preview_cutoff = 120, -- muestra preview solo si ventana ≥120 cols
   },
+}
+
 }
 
 -- Load native fzf if available
