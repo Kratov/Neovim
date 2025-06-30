@@ -40,6 +40,7 @@ require('mason').setup()
 require('mason-lspconfig').setup()
 
 
+
 local servers = {
   lua_ls = {
     Lua = {
@@ -48,20 +49,9 @@ local servers = {
     },
   },
   tailwindcss = {},
-  pylsp = {
-    pylsp = {
-      plugins = {
-        jedi_completion = { enabled = true },
-        jedi_hover = { enabled = true },
-        jedi_signature_help = { enabled = true },
-        jedi_references = { enabled = true },
-        jedi_symbols = { enabled = true },
-        rope_completion = { enabled = true },
-        rope_autoimport = { enabled = true },
-      }
-    }
-  }
+  pyright = {}, -- ✅ nuevo servidor
 }
+
 
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
