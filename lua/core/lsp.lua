@@ -50,6 +50,7 @@ local servers = {
   },
   tailwindcss = {},
   pyright = {}, -- ✅ nuevo servidor
+  ruff = {},
 }
 
 
