@@ -55,7 +55,10 @@ local servers = {
 
 
 
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.offsetEncoding = { "utf-8" } -- Fuerza utf-8 para todos
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
 local mason_lspconfig = require('mason-lspconfig')
 
 mason_lspconfig.setup {
