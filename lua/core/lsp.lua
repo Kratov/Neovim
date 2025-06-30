@@ -60,6 +60,7 @@ for _, server in ipairs(mason_lspconfig.get_installed_servers()) do
           autoSearchPaths        = true,
           diagnosticMode         = 'openFilesOnly',
           useLibraryCodeForTypes = true,
+          autoImportCompletions = true,
         },
       },
     }
