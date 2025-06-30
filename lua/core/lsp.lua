@@ -1,3 +1,4 @@
+
 -- lua/core/lsp.lua
 
 -- ─[ LSP Setup ]──────────────────────────────────────
@@ -8,12 +9,10 @@ local on_attach = function(_, bufnr)
   end
 
   local builtin = require('telescope.builtin')
-
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', function()
-    vim.lsp.buf.code_action { context = { only = { 'quickfix', 'refactor', 'source' } } }
+    vim.lsp.buf.code_action { context = { only = { 'quickfix','refactor','source' } }, apply = true }
   end, '[C]ode [A]ction')
-
   nmap('gd', builtin.lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', builtin.lsp_references, '[G]oto [R]eferences')
   nmap('gI', builtin.lsp_implementations, '[G]oto [I]mplementation')
@@ -25,64 +24,59 @@ local on_attach = function(_, bufnr)
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
   nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
   nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  nmap('<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
+  nmap('<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, '[W]orkspace [L]ist Folders')
 
-  vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+  vim.api.nvim_buf_create_user_command(bufnr, 'Format', function()
     vim.lsp.buf.format()
   end, { desc = 'Format current buffer with LSP' })
 end
 
--- ─[ LSP Server Configuration ]────────────────────────
+-- ─[ Initialize Mason & Mason‐LSPConfig ]────────────────────────
 require('neodev').setup()
 require('mason').setup()
-require('mason-lspconfig').setup()
-
-
-
-local servers = {
-  lua_ls = {
-    Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-    },
-  },
-  tailwindcss = {},
-  pyright = {}, -- ✅ nuevo servidor
-  ruff = {},
-}
-
-
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.offsetEncoding = { "utf-8" } -- Fuerza utf-8 para todos
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
 local mason_lspconfig = require('mason-lspconfig')
-
 mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
+  ensure_installed = { 'lua_ls', 'pyright', 'tailwindcss' },
 }
 
+-- ⚙️ Capabilities (force UTF-8)
+local caps = vim.lsp.protocol.make_client_capabilities()
+caps.offsetEncoding = { 'utf-8' }
+local capabilities = require('cmp_nvim_lsp').default_capabilities(caps)
 
+-- ─[ Setup each server in a simple loop ]────────────────────────
 local lspconfig = require('lspconfig')
-
-for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
-  local config = {
+for _, server in ipairs(mason_lspconfig.get_installed_servers()) do
+  local opts = {
+    on_attach   = on_attach,
     capabilities = capabilities,
-    on_attach = on_attach,
   }
 
-  if servers[server_name] then
-    config.settings = servers[server_name]
+  if server == 'pyright' then
+    opts.before_init = function(_, config) config.offsetEncoding = { 'utf-8' } end
+    opts.settings = {
+      python = {
+        analysis = {
+          autoSearchPaths        = true,
+          diagnosticMode         = 'openFilesOnly',
+          useLibraryCodeForTypes = true,
+        },
+      },
+    }
+  elseif server == 'lua_ls' then
+    opts.settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry  = { enable = false },
+      },
+    }
   end
 
-  lspconfig[server_name].setup(config)
+  lspconfig[server].setup(opts)
 end
 
-
--- Optional manual linting command
-vim.keymap.set("n", "<leader>l", function()
+-- 🔧 Optional: Manual lint command
+vim.keymap.set('n', '<leader>l', function()
   require('lint').try_lint()
-end, { desc = 'Trigger linting current file' })
+end, { desc = 'Trigger linting for current file' })
+
