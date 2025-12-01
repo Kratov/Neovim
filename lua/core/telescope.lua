@@ -42,9 +42,8 @@ telescope.setup {
   },
 
 defaults = {
-  layout_strategy = 'horizontal',
+  layout_strategy = 'vertical',
   layout_config = {
-    preview_width = 0.6,
     width = 0.9,
     preview_cutoff = 120, -- muestra preview solo si ventana ≥120 cols
   },
