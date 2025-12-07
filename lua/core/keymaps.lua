@@ -41,3 +41,14 @@ wk.add({
   { "<leader>h", group = "Git [H]unk" },
 }, { mode = "v" })
 
+-- Database
+
+vim.keymap.set('n', '<leader>Dt', ':DBUIToggle<CR>', { desc = 'Toggle DB UI' })
+
+vim.keymap.set('n', '<leader>Da', ':DBUIAddConnection<CR>', { desc = 'Add DB Connection' })
+vim.keymap.set('n', '<leader>Df', ':DBUIFindBuffer<CR>', { desc = 'Find DB Buffer' })
+
+-- Add to which-key registration
+wk.add({
+  { "<leader>D", group = "[D]atabase" },
+})
