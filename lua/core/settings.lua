@@ -3,6 +3,7 @@
 -- ─[ Leader and Env Setup ]────────────────────────────
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
+vim.g.molten_image_provider = "image.nvim"
 
 -- NOTE (JAIME): Remember to install `ripgrep` and `fd` via Chocolatey:
 -- choco install ripgrep fd
