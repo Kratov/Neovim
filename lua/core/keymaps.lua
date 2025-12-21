@@ -52,3 +52,17 @@ vim.keymap.set('n', '<leader>Df', ':DBUIFindBuffer<CR>', { desc = 'Find DB Buffe
 wk.add({
   { "<leader>D", group = "[D]atabase" },
 })
+
+-- Molten (Jupyter)
+vim.keymap.set('n', '<leader>mi', ':MoltenInit python3<CR>', { desc = 'Init kernel' })
+vim.keymap.set('n', '<leader>mr', ':MoltenReevaluateCell<CR>', { desc = 'Run cell' })
+vim.keymap.set('n', '<leader>ml', ':MoltenEvaluateLine<CR>', { desc = 'Run line' })
+vim.keymap.set('v', '<leader>mv', ':<C-u>MoltenEvaluateVisual<CR>', { desc = 'Run selection' })
+vim.keymap.set('n', '<leader>mo', ':MoltenShowOutput<CR>', { desc = 'Show output' })
+vim.keymap.set('n', '<leader>mh', ':MoltenHideOutput<CR>', { desc = 'Hide output' })
+vim.keymap.set('n', '<leader>md', ':MoltenDelete<CR>', { desc = 'Delete output' })
+
+-- Register with which-key
+wk.add({
+  { "<leader>m", group = "[M]olten" },
+})
