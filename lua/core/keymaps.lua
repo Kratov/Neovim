@@ -54,14 +54,15 @@ wk.add({
 })
 
 -- Molten (Jupyter)
-vim.keymap.set('n', '<leader>mi', ':MoltenInit python3<CR>', { desc = 'Init kernel' })
-vim.keymap.set('n', '<leader>mr', ':MoltenReevaluateCell<CR>', { desc = 'Run cell' })
+-- Molten
+vim.keymap.set('n', '<leader>mi', ':MoltenInit<CR>', { desc = 'Init kernel' })
+vim.keymap.set('n', '<leader>me', ':MoltenEvaluateOperator<CR>', { desc = 'Eval operator' })
 vim.keymap.set('n', '<leader>ml', ':MoltenEvaluateLine<CR>', { desc = 'Run line' })
-vim.keymap.set('v', '<leader>mv', ':<C-u>MoltenEvaluateVisual<CR>', { desc = 'Run selection' })
+vim.keymap.set('n', '<leader>mr', ':MoltenReevaluateCell<CR>', { desc = 'Re-run cell' })
+vim.keymap.set('v', '<leader>mv', ':<C-u>MoltenEvaluateVisual<CR>gv', { desc = 'Run selection' })
 vim.keymap.set('n', '<leader>mo', ':MoltenShowOutput<CR>', { desc = 'Show output' })
 vim.keymap.set('n', '<leader>mh', ':MoltenHideOutput<CR>', { desc = 'Hide output' })
-vim.keymap.set('n', '<leader>md', ':MoltenDelete<CR>', { desc = 'Delete output' })
-
+vim.keymap.set('n', '<leader>md', ':MoltenDelete<CR>', { desc = 'Delete cell' })
 -- Register with which-key
 wk.add({
   { "<leader>m", group = "[M]olten" },
