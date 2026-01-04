@@ -129,6 +129,10 @@ return {
 		-- Git
 		{ "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" } },
 		{ "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
+		-- TUI Apps (floating)
+		{ "<leader>tk", function() Snacks.terminal("k9s") end, desc = "K9s" },
+		{ "<leader>td", function() Snacks.terminal("lazydocker") end, desc = "Lazydocker" },
+		{ "<leader>tp", function() Snacks.terminal("posting") end, desc = "Posting (HTTP Client)" },
 		{ "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log" },
 		{ "<leader>gL", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
 		{ "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
