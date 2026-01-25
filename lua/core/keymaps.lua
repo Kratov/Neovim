@@ -89,4 +89,8 @@ vim.keymap.set('n', '<leader>md', ':MoltenDelete<CR>', { desc = 'Delete cell' })
 -- Register with which-key
 wk.add({
   { "<leader>m", group = "[M]olten" },
+  { "<leader>c", group = "[C]ode" },
 })
+
+-- Claude Code
+vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
