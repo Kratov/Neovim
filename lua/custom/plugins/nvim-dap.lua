@@ -162,19 +162,21 @@ return {
             status, _ = pcall(function() vim.keymap.set('n', '<F8>', dap.step_out, { desc = 'Debug: Step Out' }) end)
             if not status then log_dap_errors("Error setting <F8> mapping") end
 
-            local debug_prefix = "<leader>D"
-            status, _ = pcall(function() vim.keymap.set('n', debug_prefix .. 'b', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' }) end)
-            if not status then log_dap_errors("Error setting breakpoint toggle mapping") end
-
-            status, _ = pcall(function()
-                vim.keymap.set('n', debug_prefix .. 'B', function()
-                    dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-                end, { desc = 'Debug: Set Conditional Breakpoint' })
-            end)
-            if not status then log_dap_errors("Error setting conditional breakpoint mapping") end
+            vim.keymap.set('n', '<leader>dc', dap.continue, { desc = 'Debug: Continue' })
+            vim.keymap.set('n', '<leader>di', dap.step_into, { desc = 'Debug: Step Into' })
+            vim.keymap.set('n', '<leader>do', dap.step_over, { desc = 'Debug: Step Over' })
+            vim.keymap.set('n', '<leader>dO', dap.step_out, { desc = 'Debug: Step Out' })
+            vim.keymap.set('n', '<leader>db', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' })
+            vim.keymap.set('n', '<leader>dB', function()
+                dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+            end, { desc = 'Debug: Conditional Breakpoint' })
+            vim.keymap.set('n', '<leader>du', dapui.toggle, { desc = 'Debug: Toggle UI' })
+            vim.keymap.set('n', '<leader>dh', require('dap.ui.widgets').hover, { desc = 'Debug: Hover Variable' })
+            vim.keymap.set('n', '<leader>dr', dap.repl.open, { desc = 'Debug: Open REPL' })
+            vim.keymap.set('n', '<leader>dl', dap.run_last, { desc = 'Debug: Run Last' })
+            vim.keymap.set('n', '<leader>dx', dap.terminate, { desc = 'Debug: Terminate' })
 
             vim.keymap.set('n', '<F9>', dapui.toggle, { desc = 'Debug: Toggle UI' })
-            vim.keymap.set('n', debug_prefix .. 'h', require('dap.ui.widgets').hover, { desc = 'Debug: Hover Variable' })
         end
 
         setup_keymaps()

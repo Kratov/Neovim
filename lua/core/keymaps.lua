@@ -46,17 +46,33 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- Which-key registration
 local wk = require('which-key')
 wk.add({
+  { "<leader>a", group = "[A]vante AI" },
   { "<leader>b", group = "[B]uffer" },
   { "<leader>c", group = "[C]ode" },
-  { "<leader>d", group = "[D]ocument" },
+  { "<leader>d", group = "[D]ebug" },
+  { "<leader>D", group = "[D]atabase" },
+  { "<leader>e", desc = "File Explorer" },
   { "<leader>g", group = "[G]it" },
   { "<leader>h", group = "Git [H]unk" },
+  { "<leader>H", desc = "Harpoon Menu" },
+  { "<leader>M", desc = "Harpoon Mark" },
+  { "<leader>m", group = "[M]olten" },
   { "<leader>n", group = "[N]otifications" },
   { "<leader>r", group = "[R]ename" },
   { "<leader>s", group = "[S]earch" },
-  { "<leader>t", group = "[T]oggle" },
+  { "<leader>t", group = "[T]UI Apps" },
   { "<leader>u", group = "[U]I Toggles" },
   { "<leader>w", group = "[W]orkspace" },
+  { "<leader>x", group = "Trouble" },
+  { "<leader>z", desc = "Zen Mode" },
+  { "<leader>Z", desc = "Zoom" },
+  { "<leader>.", desc = "Scratch Buffer" },
+  { "<leader>S", desc = "Select Scratch" },
+  { "<leader>1", desc = "Harpoon 1" },
+  { "<leader>2", desc = "Harpoon 2" },
+  { "<leader>3", desc = "Harpoon 3" },
+  { "<leader>4", desc = "Harpoon 4" },
+  { "<leader>5", desc = "Harpoon 5" },
 })
 
 -- Visual mode groups
@@ -71,10 +87,6 @@ vim.keymap.set('n', '<leader>Dt', ':DBUIToggle<CR>', { desc = 'Toggle DB UI' })
 vim.keymap.set('n', '<leader>Da', ':DBUIAddConnection<CR>', { desc = 'Add DB Connection' })
 vim.keymap.set('n', '<leader>Df', ':DBUIFindBuffer<CR>', { desc = 'Find DB Buffer' })
 
--- Add to which-key registration
-wk.add({
-  { "<leader>D", group = "[D]atabase" },
-})
 
 -- Molten (Jupyter)
 -- Molten
@@ -86,11 +98,6 @@ vim.keymap.set('v', '<leader>mv', ':<C-u>MoltenEvaluateVisual<CR>gv', { desc = '
 vim.keymap.set('n', '<leader>mo', ':MoltenShowOutput<CR>', { desc = 'Show output' })
 vim.keymap.set('n', '<leader>mh', ':MoltenHideOutput<CR>', { desc = 'Hide output' })
 vim.keymap.set('n', '<leader>md', ':MoltenDelete<CR>', { desc = 'Delete cell' })
--- Register with which-key
-wk.add({
-  { "<leader>m", group = "[M]olten" },
-  { "<leader>c", group = "[C]ode" },
-})
 
 -- Claude Code
 vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
