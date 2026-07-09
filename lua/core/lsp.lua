@@ -1,5 +1,8 @@
 -- lua/core/lsp.lua
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
+  if client.supports_method('textDocument/inlayHint') then
+    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+  end
   local nmap = function(keys, func, desc)
     if desc then desc = 'LSP: ' .. desc end
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
@@ -26,7 +29,7 @@ end
 require('neodev').setup()
 require('mason').setup()
 require('mason-lspconfig').setup {
-  ensure_installed = { 'lua_ls', 'pyright', 'tailwindcss' },
+  ensure_installed = { 'lua_ls', 'pyright', 'tailwindcss', 'omnisharp' },
 }
 
 local caps = vim.lsp.protocol.make_client_capabilities()
@@ -62,7 +65,27 @@ vim.lsp.config('lua_ls', {
   },
 })
 
-vim.lsp.enable({ 'lua_ls', 'pyright', 'tailwindcss' })
+vim.lsp.config('omnisharp', {
+  settings = {
+    RoslynExtensionsOptions = {
+      -- inlay hints (parameter/type/method hints shown inline)
+      InlayHintsOptions = {
+        EnableForParameters = true,
+        EnableForLiteralParameters = true,
+        EnableForObjectCreationParameters = true,
+        EnableForIndexerParameters = true,
+        EnableForTypes = true,
+        EnableForImplicitVariableTypes = true,
+        EnableForLambdaParameterTypes = true,
+        EnableForImplicitObjectCreation = true,
+      },
+      EnableAnalyzersSupport = true, -- roslyn analyzer diagnostics/code actions
+      EnableImportCompletion = true, -- auto-import unimported types on completion
+    },
+  },
+})
+
+vim.lsp.enable({ 'lua_ls', 'pyright', 'tailwindcss', 'omnisharp' })
 
 vim.keymap.set('n', '<leader>l', function()
   require('lint').try_lint()
